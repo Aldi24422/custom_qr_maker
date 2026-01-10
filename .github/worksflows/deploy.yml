@@ -21,28 +21,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 1. Install Flutter SDK di Server GitHub
+      # 1. Install Flutter SDK
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          # Anda bisa menentukan versi spesifik jika perlu, misal: flutter-version: '3.19.0'
       
-      # 2. Download library yang dibutuhkan
+      # 2. Install Dependencies
       - name: Install Dependencies
         run: flutter pub get
 
-      # 3. Build Flutter Web (PENTING: Perhatikan bagian base-href)
-      # GANTI "NAMA-REPO-ANDA" dengan nama repository github Anda.
-      # Contoh: jika repo anda github.com/budi/toko-online, maka isi "/toko-online/"
-      # Pastikan diawali dan diakhiri dengan garis miring (slash).
+      # 3. Build Web
+      # Asumsi: Nama repository GitHub Anda adalah 'custom_qr_maker'
+      # Jika nama repo beda, ubah bagian: /custom_qr_maker/
       - name: Build Web
         run: flutter build web --release --base-href "/custom_qr_maker/"
 
-      # 4. Upload folder hasil build (build/web)
+      # 4. Setup Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      # 5. Upload hasil build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
