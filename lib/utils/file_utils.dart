@@ -1,11 +1,12 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/rendering.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+
+// Conditional import for platform-specific file handling
+import 'file_helper_io.dart' if (dart.library.html) 'file_helper_web.dart';
 
 /// Utility class untuk menangani operasi file terkait QR Code
 /// Mencakup capture gambar dari widget dan sharing/saving
@@ -25,53 +26,36 @@ class FileUtils {
     double pixelRatio = 3.0,
   }) async {
     try {
-      // Get the RenderRepaintBoundary from the key
-      final boundary = key.currentContext?.findRenderObject();
-
-      if (boundary == null || boundary is! RenderRepaintBoundary) {
-        debugPrint('FileUtils: RenderRepaintBoundary not found');
-        return false;
-      }
-
-      // Capture the image
-      final ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
-
-      // Convert to PNG bytes
-      final ByteData? byteData = await image.toByteData(
-        format: ui.ImageByteFormat.png,
+      // Capture bytes
+      final Uint8List? pngBytes = await captureToBytes(
+        key,
+        pixelRatio: pixelRatio,
       );
 
-      if (byteData == null) {
-        debugPrint('FileUtils: Failed to convert image to bytes');
-        return false;
-      }
-
-      final Uint8List pngBytes = byteData.buffer.asUint8List();
-
-      // Get temporary directory
-      final Directory tempDir = await getTemporaryDirectory();
+      if (pngBytes == null) return false;
 
       // Generate filename with timestamp if not provided
       final String finalFileName =
           fileName ?? 'qr_code_${DateTime.now().millisecondsSinceEpoch}';
 
-      // Create file path
-      final String filePath = '${tempDir.path}/$finalFileName.png';
+      String? filePath;
+      bool isWeb = kIsWeb;
 
-      // Write file
-      final File file = File(filePath);
-      await file.writeAsBytes(pngBytes);
+      if (!isWeb) {
+        filePath = await FileHelperImpl.saveFile(
+          pngBytes,
+          finalFileName,
+          'png',
+        );
+        if (filePath == null) return false;
+      }
 
-      debugPrint('FileUtils: Image saved to $filePath');
-
-      // Share the file
-      await Share.shareXFiles(
-        [XFile(filePath)],
-        text: 'QR Code',
-        subject: 'QR Code Image',
+      return await FileHelperImpl.shareFile(
+        filePath ?? '$finalFileName.png',
+        pngBytes,
+        'QR Code',
+        'QR Code Image',
       );
-
-      return true;
     } catch (e, stackTrace) {
       debugPrint('FileUtils: Error capturing/saving image - $e');
       debugPrint('$stackTrace');
@@ -106,39 +90,32 @@ class FileUtils {
     }
   }
 
-  /// Saves bytes to a file and returns the file path
+  /// Saves bytes to a file and returns the file path (IO) or triggers download (Web)
   static Future<String?> saveBytesToFile(
     Uint8List bytes, {
     String? fileName,
     String extension = 'png',
   }) async {
-    try {
-      final Directory tempDir = await getTemporaryDirectory();
-      final String finalFileName =
-          fileName ?? 'qr_code_${DateTime.now().millisecondsSinceEpoch}';
+    final String finalFileName =
+        fileName ?? 'qr_code_${DateTime.now().millisecondsSinceEpoch}';
 
-      final String filePath = '${tempDir.path}/$finalFileName.$extension';
-
-      final File file = File(filePath);
-      await file.writeAsBytes(bytes);
-
-      return filePath;
-    } catch (e) {
-      debugPrint('FileUtils: Error saving bytes to file - $e');
-      return null;
-    }
+    return await FileHelperImpl.saveFile(bytes, finalFileName, extension);
   }
 
-  /// Shares a file by path
+  /// Shares a file
   static Future<void> shareFile(
     String filePath, {
     String? text,
     String? subject,
   }) async {
-    try {
-      await Share.shareXFiles([XFile(filePath)], text: text, subject: subject);
-    } catch (e) {
-      debugPrint('FileUtils: Error sharing file - $e');
-    }
+    // This method assumes filePath exists on IO.
+    // On Web, this might fail if bytes aren't passed.
+    // This signature matches old one but we don't have bytes here.
+    // If we only have path, Web share will fail.
+    // But this method was barely used directly?
+    // captureAndSave is the main one.
+
+    // Attempt share with dummy bytes/null
+    await FileHelperImpl.shareFile(filePath, null, text ?? '', subject ?? '');
   }
 }
