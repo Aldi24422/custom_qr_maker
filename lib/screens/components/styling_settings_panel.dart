@@ -112,7 +112,29 @@ class StylingSettingsPanel extends StatelessWidget {
                   ColorPickerTile(
                     label: 'Eye Ball Color',
                     color: options.eyeBallColor,
-                    onChanged: provider.updateEyeBallColor,
+                    onChanged: (color) =>
+                        _checkAndUpdateEyeBallColor(context, color, provider),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, top: 4, bottom: 12),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline_rounded,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Gunakan warna gelap agar mudah discan',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontStyle: FontStyle.italic,
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ColorPickerTile(
@@ -143,6 +165,51 @@ class StylingSettingsPanel extends StatelessWidget {
         );
       },
     );
+  }
+
+  bool _isLightColor(Color color) {
+    return color.computeLuminance() > 0.5;
+  }
+
+  void _checkAndUpdateEyeBallColor(
+    BuildContext context,
+    Color color,
+    QrProvider provider,
+  ) {
+    if (_isLightColor(color)) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              SizedBox(width: 12),
+              Text('Warna Terlalu Terang'),
+            ],
+          ),
+          content: const Text(
+            'Warna Eye Ball yang Anda pilih terlalu terang. \n\n'
+            'QR Code membutuhkan kontras tinggi (Eye Ball gelap di atas background putih) agar bisa dibaca oleh scanner.\n\n'
+            'Apakah Anda yakin ingin menggunakan warna ini?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal, Ganti Warna'),
+            ),
+            FilledButton(
+              onPressed: () {
+                provider.updateEyeBallColor(color);
+                Navigator.pop(context);
+              },
+              child: const Text('Tetap Gunakan'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      provider.updateEyeBallColor(color);
+    }
   }
 }
 
