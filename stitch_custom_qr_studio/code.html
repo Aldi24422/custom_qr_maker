@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision QR Maker | High-End Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#00105c",
+                        "tertiary-fixed": "#ffdcc6",
+                        "on-error": "#ffffff",
+                        "outline": "#757684",
+                        "primary-fixed-dim": "#bac3ff",
+                        "inverse-primary": "#bac3ff",
+                        "tertiary": "#6c3400",
+                        "surface-container-highest": "#e1e3e4",
+                        "secondary": "#14696d",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary-container": "#8f4700",
+                        "surface-bright": "#f8f9fa",
+                        "outline-variant": "#c5c5d4",
+                        "on-primary-fixed-variant": "#293ca0",
+                        "secondary-fixed-dim": "#8ad3d7",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#a6eff3",
+                        "on-background": "#191c1d",
+                        "on-error-container": "#93000a",
+                        "background": "#f8f9fa",
+                        "inverse-surface": "#2e3132",
+                        "on-tertiary-container": "#ffc7a2",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "primary-container": "#3f51b5",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#d9dadb",
+                        "on-surface-variant": "#454652",
+                        "on-primary-container": "#cacfff",
+                        "surface-container-low": "#f3f4f5",
+                        "tertiary-fixed-dim": "#ffb784",
+                        "on-tertiary-fixed": "#301400",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f8f9fa",
+                        "on-tertiary-fixed-variant": "#713700",
+                        "on-secondary-fixed": "#002021",
+                        "on-secondary-fixed-variant": "#004f53",
+                        "on-surface": "#191c1d",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-container": "#edeeef",
+                        "on-secondary-container": "#1b6d71",
+                        "surface-tint": "#4355b9",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#dee0ff",
+                        "primary": "#24389c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-hover:hover {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+        }
+        .cloud-shadow {
+            box-shadow: 0 20px 40px rgba(25, 28, 29, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-indigo-50/10 shadow-sm flex justify-between items-center px-8 h-16 w-full">
+<div class="font-headline font-extrabold tracking-tighter text-indigo-900 text-xl">
+            Custom QR maker
+        </div>
+<div class="flex gap-4 items-center">
+<button class="p-2 text-slate-500 hover:bg-indigo-50/50 transition-colors rounded-lg active:scale-95 duration-150 ease-in-out">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-indigo-50/50 transition-colors rounded-lg active:scale-95 duration-150 ease-in-out">
+<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-indigo-50/50 transition-colors rounded-lg active:scale-95 duration-150 ease-in-out">
+<span class="material-symbols-outlined" data-icon="restart_alt">restart_alt</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-12 px-8 flex-grow flex flex-col lg:flex-row gap-8 max-w-[1600px] mx-auto w-full">
+<!-- LEFT COLUMN: Input & Type Selection -->
+<aside class="lg:w-1/4 flex flex-col gap-8 order-2 lg:order-1">
+<section>
+<div class="mb-4">
+<h2 class="font-headline text-2xl font-bold tracking-tight text-primary">Content Type</h2>
+<p class="text-sm text-on-surface-variant">Choose QR format</p>
+</div>
+<!-- Grid of Content Types -->
+<nav class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-3">
+<!-- URL Active Tab -->
+<button class="flex items-center gap-3 p-4 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200/50 transition-all duration-200 ease-out">
+<span class="material-symbols-outlined" data-icon="link">link</span>
+<span class="font-medium text-sm">URL</span>
+</button>
+<!-- Other Inactive Tabs -->
+<button class="flex items-center gap-3 p-4 text-slate-600 hover:bg-slate-200/50 transition-all duration-200 ease-out rounded-xl">
+<span class="material-symbols-outlined" data-icon="notes">notes</span>
+<span class="font-medium text-sm">Text</span>
+</button>
+<button class="flex items-center gap-3 p-4 text-slate-600 hover:bg-slate-200/50 transition-all duration-200 ease-out rounded-xl">
+<span class="material-symbols-outlined" data-icon="wifi">wifi</span>
+<span class="font-medium text-sm">WiFi</span>
+</button>
+<button class="flex items-center gap-3 p-4 text-slate-600 hover:bg-slate-200/50 transition-all duration-200 ease-out rounded-xl">
+<span class="material-symbols-outlined" data-icon="contact_page">contact_page</span>
+<span class="font-medium text-sm">VCard</span>
+</button>
+<button class="flex items-center gap-3 p-4 text-slate-600 hover:bg-slate-200/50 transition-all duration-200 ease-out rounded-xl">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+<span class="font-medium text-sm">Email</span>
+</button>
+</nav>
+</section>
+<section class="flex flex-col gap-4">
+<label class="font-headline text-lg font-bold">Input Details</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="globe">language</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl focus:bg-surface-container-lowest focus:ring-0 focus:border-b-2 focus:border-primary transition-all duration-200 border-none outline-none" placeholder="https://example.com" type="text"/>
+</div>
+<div class="flex items-start gap-3 p-4 bg-primary-fixed text-on-primary-fixed rounded-xl text-sm">
+<span class="material-symbols-outlined text-lg" data-icon="info">info</span>
+<p>Enter a valid URL to automatically generate your custom QR code preview.</p>
+</div>
+</section>
+</aside>
+<!-- CENTER COLUMN: QR Preview Canvas -->
+<div class="lg:w-2/4 order-1 lg:order-2">
+<div class="bg-surface-container-lowest rounded-xl cloud-shadow border border-on-surface/5 p-12 flex flex-col items-center justify-center min-h-[500px] text-center relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300">
+<!-- Asymmetrical decorative background element -->
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="relative z-10">
+<!-- QR Placeholder -->
+<div class="w-64 h-64 bg-surface-container-low border-2 border-dashed border-outline-variant rounded-xl flex items-center justify-center mb-8 mx-auto">
+<span class="material-symbols-outlined text-8xl text-surface-dim" data-icon="qr_code_2">qr_code_2</span>
+</div>
+<h1 class="font-headline text-3xl font-extrabold tracking-tight mb-2">Ready to Generate</h1>
+<p class="text-on-surface-variant max-w-xs mx-auto">Enter content to see preview and download your high-precision QR code.</p>
+</div>
+<!-- Floating Action Buttons -->
+<div class="absolute bottom-8 left-0 w-full px-8 flex justify-center gap-4">
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-high text-on-secondary-container font-semibold rounded-full glass-hover transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+                        Share
+                    </button>
+<button class="flex items-center gap-2 px-8 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-bold rounded-full shadow-lg shadow-primary/20 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+                        PNG
+                    </button>
+<button class="flex items-center gap-2 px-8 py-3 bg-surface-container-highest text-outline font-bold rounded-full cursor-not-allowed opacity-60" disabled="">
+<span class="material-symbols-outlined" data-icon="vector_library">slide_library</span>
+                        SVG
+                    </button>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Customization Design -->
+<aside class="lg:w-1/4 flex flex-col gap-6 order-3">
+<div class="mb-2">
+<h2 class="font-headline text-2xl font-bold tracking-tight text-primary">Customize Design</h2>
+</div>
+<!-- Customization Accordions -->
+<div class="flex flex-col gap-4">
+<!-- Colors Accordion Item -->
+<div class="bg-surface-container-low rounded-xl p-4 overflow-hidden">
+<button class="flex items-center justify-between w-full font-headline font-bold text-lg mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="palette">palette</span>
+                            Colors
+                        </div>
+<span class="material-symbols-outlined" data-icon="expand_more">expand_more</span>
+</button>
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium">Foreground</span>
+<div class="flex gap-2">
+<div class="w-8 h-8 rounded-full bg-primary border-2 border-white shadow-sm ring-2 ring-primary cursor-pointer"></div>
+<div class="w-8 h-8 rounded-full bg-on-background border border-outline-variant cursor-pointer"></div>
+<div class="w-8 h-8 rounded-full bg-secondary border border-outline-variant cursor-pointer"></div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium">Background</span>
+<div class="flex gap-2">
+<div class="w-8 h-8 rounded-full bg-white border-2 border-white shadow-sm ring-2 ring-primary cursor-pointer"></div>
+<div class="w-8 h-8 rounded-full bg-slate-50 border border-outline-variant cursor-pointer"></div>
+<div class="w-8 h-8 rounded-full bg-slate-100 border border-outline-variant cursor-pointer"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Shapes Accordion Item -->
+<div class="bg-surface-container-low rounded-xl p-4">
+<button class="flex items-center justify-between w-full font-headline font-bold text-lg mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="shape_line">shape_line</span>
+                            Shapes
+                        </div>
+<span class="material-symbols-outlined" data-icon="expand_more">expand_more</span>
+</button>
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-2 bg-primary text-white text-xs font-semibold rounded-md transition-all">Dots Style</button>
+<button class="px-3 py-2 bg-surface-container-high text-on-surface-variant text-xs font-semibold rounded-md hover:bg-surface-container-highest transition-all">Corner Square</button>
+<button class="px-3 py-2 bg-surface-container-high text-on-surface-variant text-xs font-semibold rounded-md hover:bg-surface-container-highest transition-all">Corner Dot</button>
+</div>
+</div>
+<!-- Logo Accordion Item -->
+<div class="bg-surface-container-low rounded-xl p-4">
+<button class="flex items-center justify-between w-full font-headline font-bold text-lg mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="add_photo_alternate">add_photo_alternate</span>
+                            Logo
+                        </div>
+<span class="material-symbols-outlined" data-icon="expand_more">expand_more</span>
+</button>
+<div class="flex flex-col gap-4">
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center text-center hover:border-primary/50 transition-colors cursor-pointer bg-surface-container-lowest">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="upload">upload</span>
+<span class="text-xs font-medium uppercase tracking-wider">Upload Custom Logo</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium">Remove BG</span>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer Blueprint -->
+<footer class="w-full py-6 mt-auto bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+<div class="flex flex-col md:flex-row justify-between items-center px-8 w-full max-w-7xl mx-auto gap-4">
+<div class="text-slate-400 font-['Inter'] text-xs uppercase tracking-widest">
+                © 2024 Precision QR Maker. All rights reserved.
+            </div>
+<nav class="flex gap-6">
+<a class="text-slate-400 hover:text-indigo-500 font-['Inter'] text-xs uppercase tracking-widest opacity-80 hover:opacity-100 transition-opacity" href="#">Terms</a>
+<a class="text-slate-400 hover:text-indigo-500 font-['Inter'] text-xs uppercase tracking-widest opacity-80 hover:opacity-100 transition-opacity" href="#">Privacy</a>
+<a class="text-slate-400 hover:text-indigo-500 font-['Inter'] text-xs uppercase tracking-widest opacity-80 hover:opacity-100 transition-opacity" href="#">API Documentation</a>
+</nav>
+</div>
+</footer>
+</body></html>

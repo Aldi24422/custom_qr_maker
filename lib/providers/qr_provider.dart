@@ -11,6 +11,8 @@ class QrProvider extends ChangeNotifier {
   // Private state
   QrOptions _options = const QrOptions();
   QrData _data = const QrData();
+  ThemeMode _themeMode = ThemeMode.system;
+  String _language = 'en';
 
   // SharedPreferences key
   static const String _storageKey = 'qr_style_prefs';
@@ -22,6 +24,8 @@ class QrProvider extends ChangeNotifier {
   // Getters
   QrOptions get options => _options;
   QrData get data => _data;
+  ThemeMode get themeMode => _themeMode;
+  String get language => _language;
 
   // ============================================
   // Initialization & Persistence
@@ -45,6 +49,7 @@ class QrProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = jsonEncode(_options.toJson());
       await prefs.setString(_storageKey, jsonString);
+      await prefs.setInt('theme_mode', _themeMode.index);
       debugPrint('QrProvider: Options saved to storage');
     } catch (e) {
       debugPrint('QrProvider: Error saving to storage: $e');
@@ -60,6 +65,17 @@ class QrProvider extends ChangeNotifier {
       if (jsonString != null && jsonString.isNotEmpty) {
         final json = jsonDecode(jsonString) as Map<String, dynamic>;
         _options = QrOptions.fromJson(json);
+        
+        final themeIndex = prefs.getInt('theme_mode');
+        if (themeIndex != null && themeIndex >= 0 && themeIndex < ThemeMode.values.length) {
+          _themeMode = ThemeMode.values[themeIndex];
+        }
+
+        final storedLang = prefs.getString('language_prefs');
+        if (storedLang != null) {
+          _language = storedLang;
+        }
+
         notifyListeners();
         debugPrint('QrProvider: Options loaded from storage');
       }
@@ -226,6 +242,24 @@ class QrProvider extends ChangeNotifier {
   void resetData() {
     _data = const QrData();
     notifyListeners();
+  }
+
+  // ============================================
+  // Theme & Language Setters
+  // ============================================
+
+  void updateThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    notifyListeners();
+    _scheduleSave();
+  }
+
+  void toggleLanguage() {
+    _language = _language == 'en' ? 'id' : 'en';
+    notifyListeners();
+    SharedPreferences.getInstance().then(
+      (prefs) => prefs.setString('language_prefs', _language),
+    );
   }
 
   // ============================================

@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/qr_data.dart';
 import '../../providers/qr_provider.dart';
+import '../../utils/translations.dart';
 
 enum WifiEncryption {
-  wpa('WPA/WPA2', 'WPA'),
-  wep('WEP', 'WEP'),
-  none('None (Open)', 'nopass');
+  wpa('wifi_enc_wpa', 'WPA'),
+  wep('wifi_enc_wep', 'WEP'),
+  none('wifi_enc_none', 'nopass');
 
-  final String label;
+  final String labelKey;
   final String value;
-  const WifiEncryption(this.label, this.value);
+  const WifiEncryption(this.labelKey, this.value);
 }
 
 class WifiForm extends StatefulWidget {
@@ -75,196 +76,216 @@ class _WifiFormState extends State<WifiForm> {
 
   @override
   Widget build(BuildContext context) {
+    context.select<QrProvider, String>((p) => p.language);
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final padding = (screenWidth * 0.05).clamp(16.0, 32.0);
 
-    return ListView(
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: padding, vertical: 20),
-      children: [
-        // Header
-        Row(
-          children: [
-            Icon(Icons.wifi, color: theme.colorScheme.primary, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              'WiFi Network',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Buat QR Code untuk berbagi koneksi WiFi',
-          style: TextStyle(
-            fontSize: 13,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-
-        // SSID
-        TextFormField(
-          controller: _ssidController,
-          style: const TextStyle(fontSize: 14),
-          decoration: InputDecoration(
-            labelText: 'Nama WiFi (SSID)',
-            labelStyle: TextStyle(
-              fontSize: 13,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            prefixIcon: Icon(
-              Icons.router,
-              size: 20,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
-            ),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-          onChanged: (_) => _updateProvider(),
-        ),
-        const SizedBox(height: 12),
-
-        // Encryption
-        DropdownButtonFormField<WifiEncryption>(
-          initialValue: _encryption,
-          style: TextStyle(fontSize: 14, color: theme.colorScheme.onSurface),
-          decoration: InputDecoration(
-            labelText: 'Tipe Enkripsi',
-            labelStyle: TextStyle(
-              fontSize: 13,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            prefixIcon: Icon(
-              Icons.lock,
-              size: 20,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
-            ),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-          items: WifiEncryption.values.map((e) {
-            return DropdownMenuItem(
-              value: e,
-              child: Text(e.label, style: const TextStyle(fontSize: 14)),
-            );
-          }).toList(),
-          onChanged: (value) {
-            if (value != null) {
-              setState(() => _encryption = value);
-              _updateProvider();
-            }
-          },
-        ),
-        const SizedBox(height: 12),
-
-        // Password
-        TextFormField(
-          controller: _passwordController,
-          obscureText: _obscurePassword,
-          style: const TextStyle(fontSize: 14),
-          decoration: InputDecoration(
-            labelText: 'Password',
-            labelStyle: TextStyle(
-              fontSize: 13,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            prefixIcon: Icon(
-              Icons.password,
-              size: 20,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                size: 20,
-              ),
-              onPressed: () =>
-                  setState(() => _obscurePassword = !_obscurePassword),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
-            ),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-          onChanged: (_) => _updateProvider(),
-        ),
-        const SizedBox(height: 12),
-
-        // Hidden Network
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Jaringan Tersembunyi',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-                Text(
-                  'Aktifkan jika SSID tidak di-broadcast',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-            Switch(
-              value: _isHidden,
-              onChanged: (value) {
-                setState(() => _isHidden = value);
-                _updateProvider();
-              },
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-
-        // Info
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Row(
             children: [
               Icon(
-                Icons.info_outline,
-                size: 16,
+                Icons.wifi,
                 color: theme.colorScheme.primary,
+                size: 20,
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Scan QR Code untuk langsung terhubung ke WiFi',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.primary,
-                  ),
+              Text(
+                context.t('type_wifi'),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            context.t('form_wifi_desc'),
+            style: TextStyle(
+              fontSize: 13,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+
+          // SSID
+          TextFormField(
+            controller: _ssidController,
+            style: const TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              labelText: context.t('form_wifi_ssid'),
+              labelStyle: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              prefixIcon: Icon(
+                Icons.router,
+                size: 20,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onChanged: (_) => _updateProvider(),
+          ),
+          const SizedBox(height: 12),
+
+          // Encryption
+          DropdownButtonFormField<WifiEncryption>(
+            initialValue: _encryption,
+            style: TextStyle(
+              fontSize: 14,
+              color: theme.colorScheme.onSurface,
+            ),
+            decoration: InputDecoration(
+              labelText: context.t('form_wifi_encryption'),
+              labelStyle: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              prefixIcon: Icon(
+                Icons.lock,
+                size: 20,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            items: WifiEncryption.values.map((e) {
+              return DropdownMenuItem(
+                value: e,
+                child: Text(
+                  context.t(e.labelKey),
+                  style: const TextStyle(fontSize: 14),
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _encryption = value);
+                _updateProvider();
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // Password
+          TextFormField(
+            controller: _passwordController,
+            obscureText: _obscurePassword,
+            style: const TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              labelText: context.t('form_wifi_password'),
+              labelStyle: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              prefixIcon: Icon(
+                Icons.password,
+                size: 20,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  size: 20,
+                ),
+                onPressed: () =>
+                    setState(() => _obscurePassword = !_obscurePassword),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onChanged: (_) => _updateProvider(),
+          ),
+          const SizedBox(height: 12),
+
+          // Hidden Network
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.t('form_wifi_hidden'),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    context.t('form_wifi_hidden_hint'),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+              Switch(
+                value: _isHidden,
+                onChanged: (value) {
+                  setState(() => _isHidden = value);
+                  _updateProvider();
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Info
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    context.t('form_wifi_info'),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

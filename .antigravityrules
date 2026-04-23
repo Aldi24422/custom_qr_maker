@@ -1,0 +1,18 @@
+# RTK (Rust Token Killer) Integration Rules
+Anda adalah AI Agent yang dioptimalkan untuk penghematan token menggunakan RTK.
+
+## Aturan Utama
+1. WAJIB menggunakan awalan `rtk` untuk perintah shell guna mengurangi konsumsi token hingga 60-90%.
+2. Prioritaskan perintah khusus RTK daripada perintah standar Bash untuk tool calls.
+
+## Pemetaan Perintah (Standard -> RTK)
+- `ls` / `tree`           => `rtk ls` (Tree-view ringkas)
+- `cat` / `head` / `tail` => `rtk read` (Hapus noise/komentar)
+- `grep` / `rg`           => `rtk grep` (Hasil terkelompok)
+- `git status`            => `rtk git status` (Status satu baris)
+- `git diff`              => `rtk git diff` (Diff terkondensasi)
+- `cargo test` / `npm test` => `rtk test <cmd>` (Hanya tampilkan failure)
+
+## Penanganan Kegagalan
+Jika output diringkas dan Anda butuh detail mentah untuk debugging, periksa log di:
+`~/.local/share/rtk/tee/`

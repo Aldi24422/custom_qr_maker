@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/qr_data.dart';
 import '../../providers/qr_provider.dart';
+import '../../utils/translations.dart';
 
 /// Form input untuk Text (multiline)
 class TextForm extends StatefulWidget {
@@ -32,131 +33,139 @@ class _TextFormState extends State<TextForm> {
 
   @override
   Widget build(BuildContext context) {
+    context.select<QrProvider, String>((p) => p.language);
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final padding = (screenWidth * 0.05).clamp(16.0, 32.0);
 
-    return ListView(
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: padding, vertical: 20),
-      children: [
-        // Header
-        Row(
-          children: [
-            Icon(Icons.text_fields, color: theme.colorScheme.primary, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              'Teks',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Masukkan teks bebas yang ingin di-encode ke dalam QR Code',
-          style: TextStyle(
-            fontSize: 13,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-
-        // Input Field - Multiline
-        TextFormField(
-          controller: _controller,
-          maxLines: 5,
-          minLines: 3,
-          keyboardType: TextInputType.multiline,
-          textInputAction: TextInputAction.newline,
-          style: const TextStyle(fontSize: 14),
-          decoration: InputDecoration(
-            labelText: 'Teks',
-            labelStyle: TextStyle(
-              fontSize: 13,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            hintText: 'Ketik teks Anda di sini...',
-            hintStyle: TextStyle(
-              fontSize: 13,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            alignLabelWithHint: true,
-            contentPadding: const EdgeInsets.all(14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-          onChanged: (value) {
-            context.read<QrProvider>().updateContent(value);
-          },
-        ),
-
-        const SizedBox(height: 8),
-
-        // Character count
-        Consumer<QrProvider>(
-          builder: (context, provider, child) {
-            final charCount = provider.data.content.length;
-            final isNearLimit = charCount > 2000;
-
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Icon(
-                  isNearLimit
-                      ? Icons.warning_amber
-                      : Icons.check_circle_outline,
-                  size: 14,
-                  color: isNearLimit
-                      ? theme.colorScheme.error
-                      : theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '$charCount karakter',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isNearLimit
-                        ? theme.colorScheme.error
-                        : theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-
-        const SizedBox(height: 12),
-
-        // Info hint
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.secondary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Row(
             children: [
               Icon(
-                Icons.info_outline,
-                size: 16,
-                color: theme.colorScheme.secondary,
+                Icons.text_fields,
+                color: theme.colorScheme.primary,
+                size: 20,
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Semakin panjang teks, semakin kompleks QR Code yang dihasilkan',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.secondary,
-                  ),
+              Text(
+                context.t('type_text'),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            context.t('form_text_desc'),
+            style: TextStyle(
+              fontSize: 13,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+
+          // Input Field - Multiline
+          TextFormField(
+            controller: _controller,
+            maxLines: 5,
+            minLines: 3,
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.newline,
+            style: const TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              labelText: context.t('type_text'),
+              labelStyle: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              hintText: context.t('form_text_hint'),
+              hintStyle: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              alignLabelWithHint: true,
+              contentPadding: const EdgeInsets.all(14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onChanged: (value) {
+              context.read<QrProvider>().updateContent(value);
+            },
+          ),
+          const SizedBox(height: 8),
+
+          // Character count
+          Consumer<QrProvider>(
+            builder: (context, provider, child) {
+              final charCount = provider.data.content.length;
+              final isNearLimit = charCount > 2000;
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    isNearLimit
+                        ? Icons.warning_amber
+                        : Icons.check_circle_outline,
+                    size: 14,
+                    color: isNearLimit
+                        ? theme.colorScheme.error
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$charCount ${context.t('form_text_char_count')}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isNearLimit
+                          ? theme.colorScheme.error
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // Info hint
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: theme.colorScheme.secondary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    context.t('form_text_info'),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.secondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

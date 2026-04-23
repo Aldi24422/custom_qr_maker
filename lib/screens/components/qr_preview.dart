@@ -10,6 +10,7 @@ import 'package:qr/qr.dart';
 import '../../providers/qr_provider.dart';
 import '../../widgets/qr_painter.dart';
 import '../../utils/file_utils.dart';
+import '../../utils/translations.dart';
 
 import 'qr_preview_io.dart'
     if (dart.library.html) 'qr_preview_web.dart'
@@ -100,14 +101,14 @@ class _QrPreviewState extends State<QrPreview> {
       final success = await FileUtils.captureAndSave(_qrKey);
       if (!success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to share QR code')),
+          SnackBar(content: Text(context.t('error_share'))),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Share failed: $e')));
+        ).showSnackBar(SnackBar(content: Text('${context.t('error_share')}: $e')));
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -126,10 +127,10 @@ class _QrPreviewState extends State<QrPreview> {
           if (path != null) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(SnackBar(content: Text('Saved to $path')));
+            ).showSnackBar(SnackBar(content: Text('${context.t('saved_to')} $path')));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to save file')),
+              SnackBar(content: Text(context.t('error_save'))),
             );
           }
         }
@@ -138,7 +139,7 @@ class _QrPreviewState extends State<QrPreview> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Download failed: $e')));
+        ).showSnackBar(SnackBar(content: Text('${context.t('error_save')}: $e')));
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -148,6 +149,7 @@ class _QrPreviewState extends State<QrPreview> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Consumer<QrProvider>(
       builder: (context, provider, child) {
@@ -166,115 +168,168 @@ class _QrPreviewState extends State<QrPreview> {
 
         return Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            clipBehavior: Clip.none,
+            padding: const EdgeInsets.all(32),
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
               children: [
-                // QR Code Card
-                Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 32,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
+                // Asymmetrical decorative background element
+                Positioned(
+                  top: -80,
+                  right: -80,
+                  child: Container(
+                    width: 320,
+                    height: 320,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: isDark ? 0.15 : 0.05),
+                      shape: BoxShape.circle,
+                    ),
+                  )
+                      .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                      .scaleXY(begin: 0.95, end: 1.05, duration: 3.seconds)
+                      .custom(
+                        duration: 3.seconds,
+                        builder: (context, value, child) => ImageFiltered(
+                          imageFilter: ui.ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+                          child: child,
+                        ),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // QR Code
-                          hasContent
-                              ? _buildQrCode(qrImage, provider.options)
-                              : _buildEmptyState(theme),
+                ),
 
-                          const SizedBox(height: 24),
+                // Main QR Canvas Card
+                Container(
+                  padding: const EdgeInsets.fromLTRB(32, 48, 32, 100),
+                  // removing hard constraints to let height adapt
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerLowest,
+                    borderRadius: BorderRadius.circular(32),
+                    border: Border.all(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark ? Colors.black26 : const Color(0x0F191C1D), // Cloud shadow
+                        blurRadius: 40,
+                        offset: const Offset(0, 20),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // QR Code or Empty State
+                      hasContent
+                          ? _buildQrCode(qrImage, provider.options)
+                          : _buildEmptyState(theme),
 
-                          // Actions
-                          Row(
+                      // Info Badge when generated
+                      if (hasContent) ...[
+                        const SizedBox(height: 24),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Share Button
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: hasContent && !_isExporting
-                                      ? _handleShare
-                                      : null,
-                                  icon: const Icon(
-                                    Icons.share_rounded,
-                                    size: 18,
-                                  ),
-                                  label: const Text('Share'),
-                                ),
+                              Icon(
+                                Icons.info_outline,
+                                size: 14,
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
-                              const SizedBox(width: 12),
-                              // Download Button
-                              Expanded(
-                                child: FilledButton.icon(
-                                  onPressed: hasContent && !_isExporting
-                                      ? _handleDownload
-                                      : null,
-                                  icon: _isExporting
-                                      ? const SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : const Icon(
-                                          Icons.download_rounded,
-                                          size: 18,
-                                        ),
-                                  label: const Text('Save'),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${provider.data.type.name.toUpperCase()} • ${content.length} chars',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    )
-                    .animate()
-                    .scale(duration: 400.ms, curve: Curves.easeOutBack)
-                    .fadeIn(duration: 400.ms),
+                        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.5, end: 0),
+                      ],
+                    ],
+                  ),
+                ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack).fadeIn(),
 
-                // Info Badge
-                if (hasContent) ...[
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          size: 14,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${provider.data.type.name.toUpperCase()} • ${content.length} chars',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
+                // Overlapping Action Buttons at the bottom
+                Positioned(
+                  bottom: 32,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Share Button
+                      ElevatedButton.icon(
+                        onPressed: hasContent && !_isExporting ? _handleShare : null,
+                        icon: const Icon(Icons.share_rounded, size: 20),
+                        label: Text(context.t('share')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                          foregroundColor: theme.colorScheme.onSurface,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                        ).copyWith(
+                          overlayColor: WidgetStateProperty.resolveWith(
+                            (states) => states.contains(WidgetState.hovered)
+                                ? Colors.white.withValues(alpha: 0.6)
+                                : null,
                           ),
                         ),
-                      ],
-                    ),
-                  ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.5, end: 0),
-                ],
+                      ),
+                      const SizedBox(width: 16),
+                      // PNG Download Button
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              theme.colorScheme.primary,
+                              theme.colorScheme.primaryContainer,
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                              blurRadius: 16,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton.icon(
+                          onPressed: hasContent && !_isExporting ? _handleDownload : null,
+                          icon: _isExporting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.download_rounded, size: 20),
+                          label: Text('PNG', style: const TextStyle(fontWeight: FontWeight.w700)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 300.ms).slideY(begin: 1.0, end: 0, curve: Curves.easeOutBack),
               ],
             ),
           ),
@@ -344,7 +399,7 @@ class _QrPreviewState extends State<QrPreview> {
               ),
           const SizedBox(height: 24),
           Text(
-            'Ready to Generate',
+            context.t('ready_title'),
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
@@ -352,7 +407,7 @@ class _QrPreviewState extends State<QrPreview> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Enter content to see preview',
+            context.t('ready_desc'),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,

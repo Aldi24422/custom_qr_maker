@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/qr_data.dart';
 import '../../providers/qr_provider.dart';
+import '../../utils/translations.dart';
 
 class VCardForm extends StatefulWidget {
   const VCardForm({super.key});
@@ -113,100 +114,120 @@ class _VCardFormState extends State<VCardForm> {
 
   @override
   Widget build(BuildContext context) {
+    context.select<QrProvider, String>((p) => p.language);
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final padding = (screenWidth * 0.05).clamp(16.0, 32.0);
 
-    return ListView(
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: padding, vertical: 20),
-      children: [
-        // Header
-        Row(
-          children: [
-            Icon(
-              Icons.contact_page,
-              color: theme.colorScheme.primary,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'VCard / Kartu Kontak',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Buat QR Code untuk menyimpan kontak digital',
-          style: TextStyle(
-            fontSize: 13,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-
-        _buildField(_nameController, 'Nama Lengkap', Icons.person),
-        const SizedBox(height: 10),
-        _buildField(_orgController, 'Perusahaan', Icons.business),
-        const SizedBox(height: 10),
-        _buildField(_titleController, 'Jabatan', Icons.work),
-        const SizedBox(height: 10),
-        _buildField(
-          _phoneController,
-          'Telepon',
-          Icons.phone,
-          keyboardType: TextInputType.phone,
-        ),
-        const SizedBox(height: 10),
-        _buildField(
-          _emailController,
-          'Email',
-          Icons.email,
-          keyboardType: TextInputType.emailAddress,
-        ),
-        const SizedBox(height: 10),
-        _buildField(
-          _websiteController,
-          'Website',
-          Icons.language,
-          keyboardType: TextInputType.url,
-        ),
-        const SizedBox(height: 10),
-        _buildField(_addressController, 'Alamat', Icons.location_on),
-        const SizedBox(height: 12),
-
-        // Info
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.secondary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Row(
             children: [
               Icon(
-                Icons.info_outline,
-                size: 16,
-                color: theme.colorScheme.secondary,
+                Icons.contact_page,
+                color: theme.colorScheme.primary,
+                size: 20,
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Scan untuk menyimpan kontak ke phonebook',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.secondary,
-                  ),
+              Text(
+                context.t('type_vcard'),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            context.t('form_vcard_desc'),
+            style: TextStyle(
+              fontSize: 13,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+
+          _buildField(
+            _nameController,
+            context.t('form_vcard_name'),
+            Icons.person,
+          ),
+          const SizedBox(height: 10),
+          _buildField(
+            _orgController,
+            context.t('form_vcard_org'),
+            Icons.business,
+          ),
+          const SizedBox(height: 10),
+          _buildField(
+            _titleController,
+            context.t('form_vcard_title'),
+            Icons.work,
+          ),
+          const SizedBox(height: 10),
+          _buildField(
+            _phoneController,
+            context.t('form_vcard_phone'),
+            Icons.phone,
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 10),
+          _buildField(
+            _emailController,
+            context.t('form_vcard_email'),
+            Icons.email,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 10),
+          _buildField(
+            _websiteController,
+            context.t('form_vcard_website'),
+            Icons.language,
+            keyboardType: TextInputType.url,
+          ),
+          const SizedBox(height: 10),
+          _buildField(
+            _addressController,
+            context.t('form_vcard_address'),
+            Icons.location_on,
+          ),
+          const SizedBox(height: 12),
+
+          // Info
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: theme.colorScheme.secondary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    context.t('form_vcard_info'),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.secondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -236,7 +257,9 @@ class _VCardFormState extends State<VCardForm> {
           horizontal: 14,
           vertical: 12,
         ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
       onChanged: (_) => _updateProvider(),
     );

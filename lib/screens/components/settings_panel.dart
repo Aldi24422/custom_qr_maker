@@ -7,6 +7,7 @@ import '../../widgets/forms/text_form.dart';
 import '../../widgets/forms/wifi_form.dart';
 import '../../widgets/forms/email_form.dart';
 import '../../widgets/forms/vcard_form.dart';
+import '../../utils/translations.dart';
 
 class SettingsPanel extends StatefulWidget {
   const SettingsPanel({super.key});
@@ -36,61 +37,64 @@ class _SettingsPanelState extends State<SettingsPanel> {
 
   @override
   Widget build(BuildContext context) {
+    context.select<QrProvider, String>((p) => p.language);
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Type Selector - Adaptive
-        LayoutBuilder(
-          builder: (context, constraints) {
-            // Use Wrap for smaller screens (mobile) to show all options at once if possible without scrolling
-            // Or use ListView for wider screens or if there are too many items
-            if (constraints.maxWidth < 600) {
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: theme.dividerColor)),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header title
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.t('content_type'),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: List.generate(_dataTypes.length, (index) {
-                    return _buildTypeItem(context, index, isCompact: true);
-                  }),
+                Text(
+                  context.t('choose_qr_format'),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              );
-            }
+              ],
+            ),
+          ),
 
-            // Desktop/Tablet - Horizontal List
-            return Container(
-              height: 72,
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: theme.dividerColor)),
-              ),
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                itemCount: _dataTypes.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 12),
-                itemBuilder: (context, index) => _buildTypeItem(context, index),
-              ),
-            );
-          },
-        ),
+          // Type Selector Grid (Responsive)
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            alignment: WrapAlignment.start,
+            children: List.generate(
+              _dataTypes.length,
+              (index) => _buildTypeItem(context, index),
+            ),
+          ),
 
-        // Form Content with smooth animation
-        Expanded(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
+          const SizedBox(height: 24),
+
+          // Input Details Header
+          Text(
+            context.t('input_details'),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
             child: _buildForm(_selectedIndex),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -111,11 +115,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
     }
   }
 
-  Widget _buildTypeItem(
-    BuildContext context,
-    int index, {
-    bool isCompact = false,
-  }) {
+  Widget _buildTypeItem(BuildContext context, int index) {
     final theme = Theme.of(context);
     final type = _dataTypes[index];
     final isSelected = _selectedIndex == index;
@@ -124,46 +124,45 @@ class _SettingsPanelState extends State<SettingsPanel> {
       color: Colors.transparent,
       child: InkWell(
         onTap: () => _onTypeSelected(index),
-        borderRadius: BorderRadius.circular(isCompact ? 8 : 10),
+        borderRadius: BorderRadius.circular(16),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.symmetric(
-            horizontal: isCompact ? 12 : 18,
-            vertical: isCompact ? 8 : 10,
-          ),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: isSelected
                 ? theme.colorScheme.primary
-                : theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(isCompact ? 8 : 10),
-            border: isSelected ? null : Border.all(color: theme.dividerColor),
+                : theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.25),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
                   ]
                 : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(
                 type.icon,
-                size: isCompact ? 16 : 18,
-                color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+                size: 24,
+                color: isSelected
+                    ? Colors.white
+                    : theme.colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Text(
-                type.label,
-                style: TextStyle(
-                  fontSize: isCompact ? 13 : 14,
-                  fontWeight: FontWeight.w600,
+                context.t(type.labelKey),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                   color: isSelected
                       ? Colors.white
-                      : theme.colorScheme.onSurface,
+                      : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/qr_options.dart';
 import '../../providers/qr_provider.dart';
+import '../../utils/translations.dart';
 import '../../widgets/styling/color_picker_tile.dart';
 import '../../widgets/styling/shape_selector.dart';
 
@@ -21,147 +22,176 @@ class StylingSettingsPanel extends StatelessWidget {
       builder: (context, provider, child) {
         final options = provider.options;
 
-        return CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.all(16.0),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  // ============================================
-                  // Section: Size
-                  // ============================================
-                  _SectionHeader(
-                    title: 'Ukuran',
-                    icon: Icons.photo_size_select_large_rounded,
-                  ),
-                  _SizeSlider(
-                    value: options.size,
-                    onChanged: provider.updateSize,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Error Correction Level
-                  _ErrorLevelSelector(
-                    value: options.errorLevel,
-                    onChanged: provider.updateErrorLevel,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Anti-Aliasing
-                  SwitchListTile.adaptive(
-                    value: options.enableAntialiasing,
-                    onChanged: provider.updateEnableAntialiasing,
-                    title: const Text('Anti-aliasing'),
-                    subtitle: const Text('Haluskan tepi QR Code'),
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 24),
-
-                  // ============================================
-                  // Section: Shapes
-                  // ============================================
-                  _SectionHeader(title: 'Bentuk', icon: Icons.category_rounded),
-                  ShapeSelector<QrDotShape>(
-                    label: 'Dot Shape',
-                    value: options.dotShape,
-                    items: QrDotShape.values,
-                    onChanged: (shape) {
-                      if (shape != null) provider.updateDotShape(shape);
-                    },
-                  ),
-                  ShapeSelector<QrEyeFrameShape>(
-                    label: 'Eye Frame Shape',
-                    value: options.eyeFrameShape,
-                    items: QrEyeFrameShape.values,
-                    onChanged: (shape) {
-                      if (shape != null) provider.updateEyeFrameShape(shape);
-                    },
-                  ),
-                  ShapeSelector<QrEyeBallShape>(
-                    label: 'Eye Ball Shape',
-                    value: options.eyeBallShape,
-                    items: QrEyeBallShape.values,
-                    onChanged: (shape) {
-                      if (shape != null) provider.updateEyeBallShape(shape);
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 24),
-
-                  // ============================================
-                  // Section: Colors
-                  // ============================================
-                  _SectionHeader(title: 'Warna', icon: Icons.palette_rounded),
-                  const SizedBox(height: 8),
-                  ColorPickerTile(
-                    label: 'Dot Color',
-                    color: options.dotColor,
-                    onChanged: provider.updateDotColor,
-                  ),
-                  const SizedBox(height: 12),
-                  ColorPickerTile(
-                    label: 'Eye Frame Color',
-                    color: options.eyeFrameColor,
-                    onChanged: provider.updateEyeFrameColor,
-                  ),
-                  const SizedBox(height: 12),
-                  ColorPickerTile(
-                    label: 'Eye Ball Color',
-                    color: options.eyeBallColor,
-                    onChanged: (color) =>
-                        _checkAndUpdateEyeBallColor(context, color, provider),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, top: 4, bottom: 12),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline_rounded,
-                          size: 14,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Gunakan warna gelap agar mudah discan',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontStyle: FontStyle.italic,
-                              ),
-                        ),
-                      ],
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header title
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.t('customize_design'),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  ColorPickerTile(
-                    label: 'Background Color',
-                    color: options.backgroundColor,
-                    onChanged: provider.updateBackgroundColor,
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 24),
-
-                  // ============================================
-                  // Section: Logo/Image
-                  // ============================================
-                  _SectionHeader(title: 'Logo', icon: Icons.image_rounded),
-                  const SizedBox(height: 8),
-                  _LogoSection(
-                    imagePath: options.imagePath,
-                    imageMargin: options.imageMargin,
-                    onImagePicked: provider.updateImagePath,
-                    onMarginChanged: provider.updateImageMargin,
-                  ),
-                  const SizedBox(height: 32),
-                ]),
+                    Text(
+                      context.t('personalize_qr'),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // ============================================
+              // Section: Size
+              // ============================================
+              _SectionHeader(
+                title: context.t('style_size'),
+                icon: Icons.photo_size_select_large_rounded,
+              ),
+              _SizeSlider(
+                value: options.size,
+                onChanged: provider.updateSize,
+              ),
+              const SizedBox(height: 16),
+
+              // Error Correction Level
+              _ErrorLevelSelector(
+                value: options.errorLevel,
+                onChanged: provider.updateErrorLevel,
+              ),
+              const SizedBox(height: 16),
+
+              // Anti-Aliasing
+              SwitchListTile.adaptive(
+                value: options.enableAntialiasing,
+                onChanged: provider.updateEnableAntialiasing,
+                title: Text(context.t('style_antialiasing')),
+                subtitle: Text(context.t('antialiasing_desc')),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+              ),
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 24),
+
+              // ============================================
+              // Section: Shapes
+              // ============================================
+              _SectionHeader(
+                title: context.t('style_shape_title'),
+                icon: Icons.category_rounded,
+              ),
+              ShapeSelector<QrDotShape>(
+                label: context.t('style_dot_shape'),
+                value: options.dotShape,
+                items: QrDotShape.values,
+                onChanged: (shape) {
+                  if (shape != null) provider.updateDotShape(shape);
+                },
+              ),
+              ShapeSelector<QrEyeFrameShape>(
+                label: context.t('style_eye_frame'),
+                value: options.eyeFrameShape,
+                items: QrEyeFrameShape.values,
+                onChanged: (shape) {
+                  if (shape != null) provider.updateEyeFrameShape(shape);
+                },
+              ),
+              ShapeSelector<QrEyeBallShape>(
+                label: context.t('style_eye_ball'),
+                value: options.eyeBallShape,
+                items: QrEyeBallShape.values,
+                onChanged: (shape) {
+                  if (shape != null) provider.updateEyeBallShape(shape);
+                },
+              ),
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 24),
+
+              // ============================================
+              // Section: Colors
+              // ============================================
+              _SectionHeader(
+                title: context.t('style_color_title'),
+                icon: Icons.palette_rounded,
+              ),
+              const SizedBox(height: 8),
+              ColorPickerTile(
+                label: context.t('style_dots'),
+                color: options.dotColor,
+                onChanged: provider.updateDotColor,
+              ),
+              const SizedBox(height: 12),
+              ColorPickerTile(
+                label: context.t('style_eye_frame_color'),
+                color: options.eyeFrameColor,
+                onChanged: provider.updateEyeFrameColor,
+              ),
+              const SizedBox(height: 12),
+              ColorPickerTile(
+                label: context.t('style_eye_ball_color'),
+                color: options.eyeBallColor,
+                onChanged: (color) =>
+                    _checkAndUpdateEyeBallColor(context, color, provider),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 4, top: 4, bottom: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        context.t('eye_ball_warning'),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              ColorPickerTile(
+                label: context.t('style_bg'),
+                color: options.backgroundColor,
+                onChanged: provider.updateBackgroundColor,
+              ),
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 24),
+
+              // ============================================
+              // Section: Logo/Image
+              // ============================================
+              _SectionHeader(
+                title: context.t('style_logo_title'),
+                icon: Icons.image_rounded,
+              ),
+              const SizedBox(height: 8),
+              _LogoSection(
+                imagePath: options.imagePath,
+                imageMargin: options.imageMargin,
+                onImagePicked: provider.updateImagePath,
+                onMarginChanged: provider.updateImageMargin,
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
         );
       },
     );
@@ -180,29 +210,25 @@ class StylingSettingsPanel extends StatelessWidget {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.orange),
-              SizedBox(width: 12),
-              Text('Warna Terlalu Terang'),
+              const SizedBox(width: 12),
+              Text(context.t('warning_color_title')),
             ],
           ),
-          content: const Text(
-            'Warna Eye Ball yang Anda pilih terlalu terang. \n\n'
-            'QR Code membutuhkan kontras tinggi (Eye Ball gelap di atas background putih) agar bisa dibaca oleh scanner.\n\n'
-            'Apakah Anda yakin ingin menggunakan warna ini?',
-          ),
+          content: Text(context.t('warning_color_message')),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal, Ganti Warna'),
+              child: Text(context.t('cancel_change')),
             ),
             FilledButton(
               onPressed: () {
                 provider.updateEyeBallColor(color);
                 Navigator.pop(context);
               },
-              child: const Text('Tetap Gunakan'),
+              child: Text(context.t('keep_color')),
             ),
           ],
         ),
@@ -268,7 +294,7 @@ class _SizeSlider extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Size',
+                context.t('size'),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: theme.colorScheme.onSurface,
@@ -365,7 +391,7 @@ class _LogoSection extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal memilih gambar: $e'),
+            content: Text('${context.t('pick_image_failed')}: $e'),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -445,7 +471,7 @@ class _LogoSection extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: () => _pickImage(context),
               icon: const Icon(Icons.upload_rounded),
-              label: const Text('Upload Image'),
+              label: Text(context.t('style_logo_choose')),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
@@ -479,7 +505,7 @@ class _LogoSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Logo aktif',
+                        context.t('logo_active'),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.primary,
                         ),
@@ -495,14 +521,14 @@ class _LogoSection extends StatelessWidget {
                     IconButton.filledTonal(
                       onPressed: () => _pickImage(context),
                       icon: const Icon(Icons.edit_rounded, size: 20),
-                      tooltip: 'Ganti gambar',
+                      tooltip: context.t('change_image'),
                     ),
                     const SizedBox(width: 4),
                     // Remove Image
                     IconButton.filledTonal(
                       onPressed: () => onImagePicked(null),
                       icon: const Icon(Icons.delete_rounded, size: 20),
-                      tooltip: 'Hapus gambar',
+                      tooltip: context.t('remove_image'),
                       style: IconButton.styleFrom(
                         backgroundColor: theme.colorScheme.errorContainer,
                         foregroundColor: theme.colorScheme.onErrorContainer,
@@ -540,7 +566,7 @@ class _ImageMarginSlider extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Image Margin', style: theme.textTheme.bodyMedium),
+            Text(context.t('style_margin'), style: theme.textTheme.bodyMedium),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -620,7 +646,16 @@ class _ErrorLevelSelector extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Error Correction', style: theme.textTheme.bodyLarge),
+              Expanded(
+                child: Text(
+                  context.t('style_error_level'),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -642,18 +677,32 @@ class _ErrorLevelSelector extends StatelessWidget {
             segments: QrErrorLevel.values.map((level) {
               return ButtonSegment(
                 value: level,
-                label: Text(level.name.toUpperCase()),
+                label: Text(
+                  level.name.toUpperCase(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 10,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               );
             }).toList(),
             selected: {value},
             onSelectionChanged: (newSelection) {
               onChanged(newSelection.first);
             },
-            style: const ButtonStyle(visualDensity: VisualDensity.compact),
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const WidgetStatePropertyAll(
+                EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              ),
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Higher = better logo support, larger QR',
+            context.t('error_level_hint'),
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

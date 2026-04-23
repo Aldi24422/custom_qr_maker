@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 
 /// Enum untuk jenis data yang di-encode dalam QR Code
 enum QrDataType {
-  text('Teks', Icons.text_fields),
-  url('URL/Link', Icons.link),
-  wifi('WiFi', Icons.wifi),
-  email('Email', Icons.email),
-  phone('Telepon', Icons.phone),
-  sms('SMS', Icons.sms),
-  vcard('VCard/Kontak', Icons.contact_page),
-  location('Lokasi', Icons.location_on);
+  text('type_text', Icons.text_fields),
+  url('type_url', Icons.link),
+  wifi('type_wifi', Icons.wifi),
+  email('type_email', Icons.email),
+  phone('type_phone', Icons.phone),
+  sms('type_sms', Icons.sms),
+  vcard('type_vcard', Icons.contact_page),
+  location('type_location', Icons.location_on);
 
-  final String label;
+  final String labelKey;
   final IconData icon;
 
-  const QrDataType(this.label, this.icon);
+  const QrDataType(this.labelKey, this.icon);
 }
 
 /// Class untuk menyimpan data yang akan di-encode ke QR Code
