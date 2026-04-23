@@ -22,7 +22,7 @@ class QrMakerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeMode = context.watch<QrProvider>().themeMode;
     return MaterialApp(
-      title: 'QR Studio',
+      title: 'Custom QR Maker',
       debugShowCheckedModeBanner: false,
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
